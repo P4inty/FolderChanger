@@ -24,23 +24,23 @@
 <#-----Variables-----#>
 
 #Define the Source Folder Path
-$SourceDir = 'A:\Programms\...'
+$SourceDir = 'A:\Programms\Software\...\Source'
 #Define the Target (the changeable) Folder Path
-$TargetDir = 'A:\Programms\...\Destination'
+$TargetDir = 'A:\Programms\Software\...\Target'
 
 #Output Variables (Change if you need to)
 $UserPromt = "Which Folder do you want to load? (id)"
 $IdDivider = ". "
 $InvalidInputMessage = "[Illegal Argument]The input must be a number between 0 and "
 $SuccessMessageChange = "[Success]Folders successfully switched!"
-$SuccessMessageGenerate = "[Sucess]Settings created: "
+$SuccessMessageGenerate = "[Success]Settings created: "
 $EndMessage = "Press Enter to quit"
 
 <#-----Class-----#>
 
 Class ChangeFolder{
 
-    #Directorys
+    #Directory's
     [string]$Source = $SourceDir
     [string]$Target = $TargetDir
 
@@ -58,15 +58,15 @@ Class ChangeFolder{
         $This.PrintFolders()
         $Success = $This.SwitchFolder()
         if($Success){
-            Write-Host ($This.GetChangeSuccess()) -ForegroundColor green
+            Write-Host ($This.ChangeSuccess) -ForegroundColor green
         }
-        Read-Host -Prompt $This.GetEnd() 
+        Read-Host -Prompt $This.End 
     }
 
     [void]GenerateSettings(){
         $Folders = $This.GetFolders()
         $Counter = 0
-        $SourceDir = $This.GetSource()
+        $SourceDir = $This.Source
 	    for($i=0; $i -lt $Folders.length; $i++) {
 		    $ActiveFolder = $Folders[$i]
 		    if(-not (Test-Path $SourceDir/$ActiveFolder/settings.txt)){
@@ -76,19 +76,19 @@ Class ChangeFolder{
 		    }
 	    }
         if($Counter -ne 0){
-            Write-Host ($This.GetSettingsSuccess() + $Counter) -ForegroundColor green
+            Write-Host ($This.SettingsSuccess + $Counter) -ForegroundColor green
         }
     }
 
     [array]GetFolders(){
-        cd $This.GetSource()
+        cd $This.Source
         return dir
     }
 
     [void]PrintFolders(){
         $Folders = $This.GetFolders()
         for($i=0; $i -lt $Folders.length; $i++){
-            Write-Host ([string]$i + $This.GetDivider() + $Folders[$i]) -ForegroundColor cyan
+            Write-Host ([string]$i + $This.Divider + $Folders[$i]) -ForegroundColor cyan
         }
     }
 
@@ -96,7 +96,7 @@ Class ChangeFolder{
         $Input        
         $Count = 0
         do {
-            $Input = Read-Host $This.GetPrompt()
+            $Input = Read-Host $This.Prompt
             if($This.IsValid($Input)){
                 $Count = 3
             }
@@ -112,7 +112,7 @@ Class ChangeFolder{
         $Folder = $This.GetFolders()
 	    if($Input -notmatch "^[0-9]*$" -or $Input -gt $Folder.length - 1 -or $Input -lt 0 -or !$Input){
            [console]::ForegroundColor="red"; $_;
-		   Write-Host ($This.GetError() + [string]($Folder.length - 1)) -ForegroundColor red
+		   Write-Host ($This.Error + [string]($Folder.length - 1)) -ForegroundColor red
             $IsValid = $False
 	    }
         return $IsValid
@@ -123,8 +123,8 @@ Class ChangeFolder{
         $Success = $False
         $FirstSwitch = $False
         $SecondSwitch = $False
-        $SourceDir = $This.GetSource()
-        $TargetDir = $This.GetTarget()
+        $SourceDir = $This.Source
+        $TargetDir = $This.Target
         if(Test-Path -Path $TargetDir){
 		    $Name = (Select-String -Path $TargetDir/settings.txt -Pattern "name=(.*)").Matches.Groups[1].Value
 		    Ren $TargetDir $Name
@@ -157,31 +157,6 @@ Class ChangeFolder{
         return $Success
     }
 
-    #Getter
-    [string]GetSource(){
-        return $This.Source
-    }
-    [string]GetTarget(){
-        return $This.Target
-    }
-    [string]GetPrompt(){
-        return $This.Prompt
-    }
-    [string]GetDivider(){
-        return $This.Divider
-    }
-    [string]GetError(){
-        return $This.Error
-    }
-    [string]GetChangeSuccess(){
-        return $This.ChangeSuccess
-    }
-    [string]GetSettingsSuccess(){
-        return $This.SettingsSuccess
-    }
-    [string]GetEnd(){
-        return $This.End
-    }
 }
 
 $default = [ChangeFolder]::new()
